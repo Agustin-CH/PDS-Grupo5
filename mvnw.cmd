@@ -115,5 +115,7 @@ if exist "%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar" (
 @REM work with both Windows and non-Windows executions.
 set MAVEN_CMD_LINE_ARGS=%*
 
-@REM AGREGADO PARA ARREGLAR RUTAS CON ESPACIOS EN JAVA_HOME
-"%JAVA_HOME%\bin\java" -classpath "%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar" "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %MAVEN_OPTS% %WRAPPER_LAUNCHER% %MAVEN_CMD_LINE_ARGS%
+@REM Usa JAVA_HOME si existe; en caso contrario busca java en PATH.
+set "GARAJE_JAVA_EXECUTABLE=java"
+if not "%JAVA_HOME%"=="" set "GARAJE_JAVA_EXECUTABLE=%JAVA_HOME%\bin\java"
+"%GARAJE_JAVA_EXECUTABLE%" -classpath "%MAVEN_PROJECTBASEDIR%\.mvn\wrapper\maven-wrapper.jar" "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" %MAVEN_OPTS% %WRAPPER_LAUNCHER% %MAVEN_CMD_LINE_ARGS%
