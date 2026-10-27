@@ -1,0 +1,289 @@
+@startuml
+!pragma layout smetana
+title El Garaje - Clases implementadas
+hide empty members
+skinparam packageStyle rectangle
+package "application" {
+  class "ElGarajeApplication" as ElGarajeApplication
+}
+package "config" {
+  class "Configuracion" as Configuracion
+}
+package "controllers" {
+  class "CatalogoController" as CatalogoController
+  class "OperacionesController" as OperacionesController
+}
+package "dtos" {
+  class "Respuestas" as Respuestas
+  class "Respuestas.Persona" as Persona <<record>>
+  class "Respuestas.Lugar" as Lugar <<record>>
+  class "Respuestas.Pieza" as Pieza <<record>>
+  class "Respuestas.Consignada" as Consignada <<record>>
+  class "Respuestas.Certificado" as Certificado <<record>>
+  class "Respuestas.VentaDetalle" as VentaDetalle <<record>>
+  class "Respuestas.Accion" as Accion <<record>>
+  class "Respuestas.Aviso" as Aviso <<record>>
+  class "Solicitudes" as Solicitudes
+  class "Solicitudes.ArtistaAlta" as ArtistaAlta <<record>>
+  class "Solicitudes.CompradorAlta" as CompradorAlta <<record>>
+  class "Solicitudes.UbicacionAlta" as UbicacionAlta <<record>>
+  class "Solicitudes.ObraAlta" as ObraAlta <<record>>
+  class "Solicitudes.ConsignacionAlta" as ConsignacionAlta <<record>>
+  class "Solicitudes.CertificadoAlta" as CertificadoAlta <<record>>
+  class "Solicitudes.Reserva" as Reserva <<record>>
+  class "Solicitudes.Traslado" as Traslado <<record>>
+  class "Solicitudes.Transicion" as Transicion <<record>>
+  enum "Solicitudes.TipoAdicional" as TipoAdicional
+  class "Solicitudes.Adicional" as Adicional <<record>>
+  class "Solicitudes.VentaAlta" as VentaAlta <<record>>
+}
+package "errors" {
+  class "ManejadorErrores" as ManejadorErrores
+  class "NegocioException" as NegocioException
+  class "NoEncontradoException" as NoEncontradoException
+}
+package "models" {
+  class "AccionObra" as AccionObra {
+    -id : Long
+    -obra : Obra
+    -tipo : String
+    -fecha : Instant
+    -estadoAnterior : EstadoObra
+    -estadoNuevo : EstadoObra
+    -ubicacionAnteriorId : Long
+    -ubicacionNuevaId : Long
+    -detalle : String
+  }
+  class "Artista" as Artista {
+    -biografia : String
+    -obras : List<Obra>
+    -tipoComision : TipoComision
+    -valorComision : java.math.BigDecimal
+  }
+  class "CertificadoAutenticidad" as CertificadoAutenticidad {
+    -id : Long
+    -obra : Obra
+    -numero : String
+    -fechaEmision : LocalDate
+    -emisor : String
+    -firma : String
+  }
+  class "Comprador" as Comprador {
+    -obrasAdquiridas : List<Obra>
+  }
+  class "Consignacion" as Consignacion {
+    -id : Long
+    -obra : Obra
+    -artista : Artista
+    -fecha : LocalDate
+    -vencimiento : LocalDate
+    -tipoComision : TipoComision
+    -valorComision : BigDecimal
+    -version : Long
+  }
+  enum "EstadoObra" as EstadoObra
+  class "Notificacion" as Notificacion {
+    -id : Long
+    -obra : Obra
+    -destinatario : Usuario
+    -evento : String
+    -mensaje : String
+    -fecha : Instant
+  }
+  class "Obra" as Obra {
+    -id : Long
+    -titulo : String
+    -anio : Integer
+    -dimensiones : String
+    -descripcion : String
+    -estado : EstadoObra
+    -version : Long
+    -precio : java.math.BigDecimal
+    -reservadoPor : Comprador
+    -ubicacion : Ubicacion
+    -fotos : java.util.List<String>
+    -artista : Artista
+    -comprador : Comprador
+  }
+  enum "TipoComision" as TipoComision
+  class "Ubicacion" as Ubicacion {
+    -id : Long
+    -nombre : String
+    -direccion : String
+  }
+  abstract class "Usuario" as Usuario {
+    -id : Long
+    -dni : String
+    -nombre : String
+    -apellido : String
+  }
+  class "Venta" as Venta {
+    -id : Long
+    -obra : Obra
+    -consignacion : Consignacion
+    -comprador : Comprador
+    -fecha : Instant
+    -precioObra : BigDecimal
+    -adicionales : BigDecimal
+    -monto : BigDecimal
+    -comisionGaleria : BigDecimal
+    -liquidacionArtista : BigDecimal
+    -tipoComisionAplicada : TipoComision
+    -valorComisionAplicado : BigDecimal
+    -servicios : java.util.List<String>
+  }
+}
+package "patterns.command" {
+  class "CambiarEstado" as CambiarEstado <<record>>
+  class "CancelarReserva" as CancelarReserva
+  interface "ComandoObra" as ComandoObra
+  class "ContextoOperacion" as ContextoOperacion <<record>>
+  class "EjecutorComandos" as EjecutorComandos
+  class "ReservarObra" as ReservarObra
+  class "TrasladarObra" as TrasladarObra
+  class "VenderObra" as VenderObra
+}
+package "patterns.decorator" {
+  abstract class "AdicionalDecorator" as AdicionalDecorator
+  interface "CostoVenta" as CostoVenta
+  class "Enmarcado" as Enmarcado
+  class "Envio" as Envio
+  class "PrecioBase" as PrecioBase <<record>>
+  class "Seguro" as Seguro
+}
+package "patterns.factory" {
+  abstract class "CreadorVenta" as CreadorVenta
+  class "CreadorVentaConsignada" as CreadorVentaConsignada
+}
+package "patterns.observer" {
+  class "EventoObra" as EventoObra <<record>>
+  class "NotificadorObra" as NotificadorObra
+}
+package "patterns.state" {
+  class "CicloObra" as CicloObra
+  class "Disponible" as Disponible
+  class "EnExhibicion" as EnExhibicion
+  class "EnRestauracion" as EnRestauracion
+  interface "EstadoDeObra" as EstadoDeObra
+  class "Reservada" as Reservada
+  class "Vendida" as Vendida
+}
+package "patterns.strategy" {
+  class "CalculadoraComision" as CalculadoraComision
+  class "ComisionFija" as ComisionFija
+  class "ComisionPorcentaje" as ComisionPorcentaje
+  interface "ComisionStrategy" as ComisionStrategy
+}
+package "repositories" {
+  interface "AccionObraRepository" as AccionObraRepository
+  interface "ArtistaRepository" as ArtistaRepository
+  interface "CertificadoAutenticidadRepository" as CertificadoAutenticidadRepository
+  interface "CompradorRepository" as CompradorRepository
+  interface "ConsignacionRepository" as ConsignacionRepository
+  interface "NotificacionRepository" as NotificacionRepository
+  interface "ObraRepository" as ObraRepository
+  interface "UbicacionRepository" as UbicacionRepository
+  interface "UsuarioRepository" as UsuarioRepository
+  interface "VentaRepository" as VentaRepository
+}
+package "services" {
+  class "CatalogoServicio" as CatalogoServicio
+  class "OperacionesServicio" as OperacionesServicio
+}
+Usuario <|-- Artista
+Usuario <|-- Comprador
+Obra "*" --> "0..1" Artista : artista
+Obra "*" --> "0..1" Comprador : comprador
+Obra "*" --> "0..1" Comprador : reservadoPor
+Obra "*" --> "0..1" Ubicacion : ubicacion
+Artista "0..1" --> "*" Obra : obras
+Comprador "0..1" --> "*" Obra : obrasAdquiridas
+Consignacion "0..1" --> "1" Obra
+Consignacion "*" --> "1" Artista
+Venta "0..1" --> "1" Obra
+Venta "0..1" --> "1" Consignacion
+Venta "*" --> "1" Comprador
+CertificadoAutenticidad "0..1" --> "1" Obra
+AccionObra "*" --> "1" Obra
+Notificacion "*" --> "1" Obra
+Notificacion "*" --> "1" Usuario : destinatario
+EstadoDeObra <|.. Disponible
+EstadoDeObra <|.. EnExhibicion
+EstadoDeObra <|.. Reservada
+EstadoDeObra <|.. Vendida
+EstadoDeObra <|.. EnRestauracion
+CicloObra --> EstadoDeObra
+CicloObra ..> Obra
+ComisionStrategy <|.. ComisionPorcentaje
+ComisionStrategy <|.. ComisionFija
+CalculadoraComision --> ComisionStrategy
+CostoVenta <|.. PrecioBase
+CostoVenta <|.. AdicionalDecorator
+AdicionalDecorator --> CostoVenta : base
+AdicionalDecorator <|-- Enmarcado
+AdicionalDecorator <|-- Envio
+AdicionalDecorator <|-- Seguro
+CreadorVenta <|-- CreadorVentaConsignada
+CreadorVenta --> CalculadoraComision
+CreadorVenta ..> CostoVenta
+CreadorVenta ..> Venta : preparar()
+CreadorVentaConsignada ..> Venta : crearVenta()
+ComandoObra <|.. ReservarObra
+ComandoObra <|.. CancelarReserva
+ComandoObra <|.. VenderObra
+ComandoObra <|.. TrasladarObra
+ComandoObra <|.. CambiarEstado
+ComandoObra ..> ContextoOperacion
+ContextoOperacion --> Obra
+ContextoOperacion --> Comprador
+ContextoOperacion --> Ubicacion
+ContextoOperacion --> CicloObra
+EjecutorComandos ..> ComandoObra
+EjecutorComandos --> AccionObraRepository
+EjecutorComandos ..> EventoObra : publica
+NotificadorObra ..> EventoObra : @EventListener
+NotificadorObra --> NotificacionRepository
+NotificadorObra --> ObraRepository
+NotificadorObra --> UsuarioRepository
+CatalogoController --> CatalogoServicio
+OperacionesController --> OperacionesServicio
+CatalogoServicio ..> Solicitudes
+CatalogoServicio ..> Respuestas
+OperacionesServicio ..> Solicitudes
+OperacionesServicio ..> Respuestas
+OperacionesServicio --> EjecutorComandos
+OperacionesServicio --> CicloObra
+OperacionesServicio --> CreadorVenta
+OperacionesServicio ..> CostoVenta
+OperacionesServicio --> ObraRepository
+OperacionesServicio --> CompradorRepository
+OperacionesServicio --> UbicacionRepository
+OperacionesServicio --> ConsignacionRepository
+OperacionesServicio --> VentaRepository
+OperacionesServicio --> AccionObraRepository
+CatalogoServicio --> ArtistaRepository
+CatalogoServicio --> CompradorRepository
+CatalogoServicio --> ObraRepository
+CatalogoServicio --> UbicacionRepository
+CatalogoServicio --> ConsignacionRepository
+CatalogoServicio --> CertificadoAutenticidadRepository
+CatalogoServicio --> UsuarioRepository
+CatalogoServicio --> NotificacionRepository
+CatalogoServicio --> CalculadoraComision
+ManejadorErrores ..> NegocioException
+ManejadorErrores ..> NoEncontradoException
+AccionObraRepository ..> AccionObra : persiste
+ArtistaRepository ..> Artista : persiste
+CertificadoAutenticidadRepository ..> CertificadoAutenticidad : persiste
+CompradorRepository ..> Comprador : persiste
+ConsignacionRepository ..> Consignacion : persiste
+NotificacionRepository ..> Notificacion : persiste
+ObraRepository ..> Obra : persiste
+UbicacionRepository ..> Ubicacion : persiste
+UsuarioRepository ..> Usuario : persiste
+VentaRepository ..> Venta : persiste
+legend bottom
+Tipos generados desde src/main/java; se omiten bibliotecas externas y getters/setters.
+Las relaciones del dominio y patrones se mantienen en scripts/generar-uml.ps1.
+endlegend
+@enduml
